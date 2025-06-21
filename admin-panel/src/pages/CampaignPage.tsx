@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input, message, Space, Typography, DatePicker, Select, Upload, Switch } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
 import ImgCrop from 'antd-img-crop';
-import axios from 'axios';
+import apiClient from '../api/axiosConfig';
 import dayjs from 'dayjs';
 
 const { Title } = Typography;
@@ -44,9 +44,9 @@ const CampaignPage: React.FC = () => {
     setLoading(true);
     try {
       const [cRes, sRes, bRes] = await Promise.all([
-        axios.get('/api/campaign', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }),
-        axios.get('/api/store', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }),
-        axios.get('/api/bank', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }),
+        apiClient.get('/campaign'),
+        apiClient.get('/store'),
+        apiClient.get('/bank'),
       ]);
       setCampaigns(cRes.data);
       setStores(sRes.data);
@@ -60,7 +60,7 @@ const CampaignPage: React.FC = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get('/api/category', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+      const res = await apiClient.get('/category');
       setCategories(res.data);
     } catch {
       message.error('Kategoriler yüklenemedi');
@@ -109,7 +109,7 @@ const CampaignPage: React.FC = () => {
           uid: '-1',
           name: 'image.png',
           status: 'done',
-          url: `http://localhost:5008${campaign.imageUrl}`,
+          url: `${import.meta.env.VITE_API_BASE_URL?.replace('/api', '')}${campaign.imageUrl}`,
         },
       ]);
     } else {
@@ -123,7 +123,7 @@ const CampaignPage: React.FC = () => {
       title: 'Kampanyayı silmek istediğinize emin misiniz?',
       onOk: async () => {
         try {
-          await axios.delete(`/api/campaign/${id}`, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+          await apiClient.delete(`/campaign/${id}`);
           message.success('Kampanya silindi');
           fetchAll();
         } catch {
@@ -138,12 +138,12 @@ const CampaignPage: React.FC = () => {
     if (imageFileList.length && imageFileList[0].originFileObj) {
       const formData = new FormData();
       formData.append('file', imageFileList[0].originFileObj);
-      const res = await axios.post('/api/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${localStorage.getItem('token')}` },
+      const res = await apiClient.post('/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
       imageUrl = res.data.url;
     } else if (imageFileList.length && imageFileList[0].url) {
-      imageUrl = imageFileList[0].url.replace('http://localhost:5008', '');
+      imageUrl = new URL(imageFileList[0].url).pathname;
     }
     
     const categoryName = categories.find(c => c.id === values.categoryId)?.name;
@@ -160,10 +160,10 @@ const CampaignPage: React.FC = () => {
 
     try {
       if (editing) {
-        await axios.put(`/api/campaign/${editing.id}`, payload, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+        await apiClient.put(`/campaign/${editing.id}`, payload);
         message.success('Kampanya güncellendi');
       } else {
-        await axios.post('/api/campaign', payload, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+        await apiClient.post('/campaign', payload);
         message.success('Kampanya eklendi');
       }
       setModalOpen(false);
@@ -175,9 +175,7 @@ const CampaignPage: React.FC = () => {
 
   const handleToggleActive = async (campaign: Campaign) => {
     try {
-      const res = await axios.patch(`/api/campaign/${campaign.id}/toggle`, {}, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      const res = await apiClient.patch(`/campaign/${campaign.id}/toggle`, {});
       setCampaigns(prev => prev.map(c => c.id === campaign.id ? res.data : c));
       message.success('Durum güncellendi');
     } catch(err: any) {
@@ -234,7 +232,7 @@ const CampaignPage: React.FC = () => {
             }
           },
           { title: 'Ödül', render: (_: any, c: Campaign) => c.rewardAmount ? `${c.rewardAmount} ${c.rewardType || ''}` : '-' },
-          { title: 'Görsel', dataIndex: 'imageUrl', render: (url?: string) => url ? <img src={`http://localhost:5008${url}`} alt="kampanya" style={{ width: 40, height: 40, objectFit: 'contain' }} /> : '-' },
+          { title: 'Görsel', dataIndex: 'imageUrl', render: (url?: string) => url ? <img src={`${import.meta.env.VITE_API_BASE_URL?.replace('/api', '')}${url}`} alt="kampanya" style={{ width: 40, height: 40, objectFit: 'contain' }} /> : '-' },
           {
             title: 'İşlemler',
             render: (_, campaign: Campaign) => (
@@ -248,100 +246,63 @@ const CampaignPage: React.FC = () => {
       />
       <Modal open={categoryModalOpen} title="Kategori Seç" onCancel={() => setCategoryModalOpen(false)} footer={null}>
         <Select
-          style={{ width: '100%' }}
+          showSearch
           placeholder="Kategori seçin"
-          options={categories.map(c => ({ value: c.id, label: c.name }))}
-          onChange={handleCategorySelect}
-          autoFocus
-        />
+          style={{ width: '100%' }}
+          onSelect={handleCategorySelect}
+          filterOption={(input, option) =>
+            (option?.children as unknown as string ?? '').toLowerCase().includes(input.toLowerCase())
+          }
+        >
+          {categories.map(c => <Select.Option key={c.id} value={c.id}>{c.name}</Select.Option>)}
+        </Select>
       </Modal>
-      <Modal open={modalOpen} title={editing ? 'Kampanya Düzenle' : 'Yeni Kampanya'} onCancel={() => setModalOpen(false)} onOk={() => form.submit()} okText="Kaydet" width={600}>
+      <Modal open={modalOpen} title={editing ? 'Kampanya Düzenle' : 'Yeni Kampanya'} onCancel={() => setModalOpen(false)} footer={null} width={600}>
         <Form form={form} layout="vertical" onFinish={handleFinish}>
-          <Form.Item name="title" label="Başlık" rules={[{ required: true, message: 'Başlık girin' }]}
-          > 
-            <Input /> 
-            </Form.Item>
-          <Form.Item 
-          name="description" 
-          label="Açıklama" 
-          rules={[{ required: true, message: 'Açıklama girin' }]}
-          > 
-          <Input.TextArea rows={2} /> 
+          <Form.Item name="title" label="Başlık" rules={[{ required: true }]}>
+            <Input />
           </Form.Item>
-          <Form.Item name="categoryId" label="Kategori" initialValue={selectedCategory} rules={[{ required: true, message: 'Kategori seçin' }]}> 
-            <Select 
-              options={categories.map(c => ({ value: c.id, label: c.name }))}
-              value={selectedCategory}
-              disabled
-            />
+          <Form.Item name="description" label="Açıklama" rules={[{ required: true }]}>
+            <Input.TextArea rows={4} />
           </Form.Item>
-          <Form.Item name="storeIds" label="Mağazalar" rules={[{ required: true, message: 'Mağaza seçin' }]}> 
-            <Select
-              mode="multiple"
-              onChange={newStoreIds => form.setFieldsValue({ storeIds: newStoreIds })}
-              options={stores.filter(s => !selectedCategory || s.categoryId === selectedCategory).map(s => ({ value: s.id, label: s.name }))}
-              placeholder="Mağaza seçin"
-              maxTagCount={4}
-              dropdownRender={menu => {
-                const filteredStores = stores.filter(s => s.categoryId === selectedCategory);
-                return (
-                  <>
-                    <div style={{ padding: 8 }}>
-                      <Button type="link" size="small" onClick={() => form.setFieldsValue({ storeIds: filteredStores.map(s => s.id) })}>
-                        Tümünü Seç
-                      </Button>
-                      <Button type="link" size="small" onClick={() => form.setFieldsValue({ storeIds: [] })}>
-                        Temizle
-                      </Button>
-                    </div>
-                    {menu}
-                  </>
-                );
-              }}
-            />
+          <Form.Item name="dateRange" label="Geçerlilik Tarihi" rules={[{ required: true }]}>
+            <RangePicker style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item 
-          name="bankId" 
-          label="Banka" 
-          rules={[{ required: true, message: 'Banka seçin' }]}
-          > 
-          <Select options={banks.map(b => ({ value: b.id, label: b.name }))} /> 
+          <Form.Item name="storeIds" label="Mağazalar" rules={[{ required: true }]}>
+            <Select mode="multiple" placeholder="Mağaza seçin" showSearch filterOption={(input, option) =>
+              (option?.children as unknown as string ?? '').toLowerCase().includes(input.toLowerCase())
+            }>
+              {stores.filter(s => s.categoryId === selectedCategory).map(s => <Select.Option key={s.id} value={s.id}>{s.name}</Select.Option>)}
+            </Select>
           </Form.Item>
-          <Form.Item 
-          name="dateRange" 
-          label="Tarih Aralığı" 
-          rules={[{ required: true, message: 'Tarih seçin' }]}
-          > 
-          <RangePicker format="DD.MM.YYYY" /> 
+          <Form.Item name="bankId" label="Banka" rules={[{ required: true }]}>
+            <Select placeholder="Banka seçin">
+              {banks.map(b => <Select.Option key={b.id} value={b.id}>{b.name}</Select.Option>)}
+            </Select>
           </Form.Item>
-          <Form.Item 
-          name="rewardAmount" 
-          label="Ödül Miktarı"
-          > 
-          <Input /> 
+          <Form.Item name="rewardAmount" label="Ödül Miktarı">
+            <Input />
           </Form.Item>
-          <Form.Item 
-          name="rewardType" 
-          label="Ödül Tipi"
-          > 
-          <Input /> 
+          <Form.Item name="rewardType" label="Ödül Tipi">
+            <Input />
+          </Form.Item>
+          <Form.Item label="Görsel">
+            <ImgCrop rotationSlider>
+              <Upload
+                listType="picture-card"
+                fileList={imageFileList}
+                onChange={({ fileList }) => setImageFileList(fileList)}
+                beforeUpload={() => false}
+                maxCount={1}
+              >
+                {imageFileList.length < 1 && <div><UploadOutlined /><div style={{ marginTop: 8 }}>Yükle</div></div>}
+              </Upload>
+            </ImgCrop>
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">Kaydet</Button>
           </Form.Item>
         </Form>
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', marginBottom: 8 }}>Görsel</label>
-          <ImgCrop rotationSlider>
-            <Upload
-              listType="picture-card"
-              fileList={imageFileList}
-              onChange={({ fileList }) => setImageFileList(fileList)}
-              beforeUpload={() => false}
-              maxCount={1}
-              accept="image/*"
-            >
-              {imageFileList.length < 1 && <UploadOutlined />}
-            </Upload>
-          </ImgCrop>
-        </div>
       </Modal>
     </div>
   );

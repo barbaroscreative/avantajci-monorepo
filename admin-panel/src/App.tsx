@@ -1,5 +1,13 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Routes, Route, Navigate, Link } from 'react-router-dom';
+import { Layout, Menu } from 'antd';
+import {
+  DashboardOutlined,
+  ShoppingOutlined,
+  BankOutlined,
+  AppstoreOutlined,
+  LogoutOutlined,
+} from '@ant-design/icons';
 import LoginPage from './pages/LoginPage';
 import DashboardLayout from './components/DashboardLayout';
 import StorePage from './pages/StorePage';
