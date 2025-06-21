@@ -1,0 +1,28 @@
+# Genel
+.DS_Store
+*.log
+.env
+.env.*
+!/.env.example
+
+# Düğümler
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+
+# Build klasörleri
+dist/
+build/
+.expo/
+web-build/
+
+# SQLite veritabanı
+db.sqlite
+db.sqlite-journal
+
+# Yüklemeler
+uploads/*
+!uploads/.gitkeep 
