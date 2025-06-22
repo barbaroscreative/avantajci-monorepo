@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Typography, message, Card } from 'antd';
-import axios from 'axios';
+import axiosInstance from '../api/axiosInstance';
 
 const { Title } = Typography;
 
@@ -10,7 +10,7 @@ const LoginPage: React.FC = () => {
   const onFinish = async (values: any) => {
     setLoading(true);
     try {
-      const res = await axios.post('/api/auth/login', values);
+      const res = await axiosInstance.post('/auth/login', values);
       localStorage.setItem('token', res.data.token);
       message.success('Giriş başarılı!');
       window.location.href = '/';
