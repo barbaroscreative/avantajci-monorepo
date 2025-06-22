@@ -4,58 +4,41 @@ import axios from 'axios';
 
 const { Title } = Typography;
 
-const LoginPage: React.FC<{ setToken: (token: string) => void }> = ({ setToken }) => {
+const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   const onFinish = async (values: any) => {
     setLoading(true);
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, {
-        username: values.username,
-        password: values.password,
-      });
-      const token = response.data.token;
-      localStorage.setItem('token', token);
-      setToken(token);
+      const res = await axios.post('/api/auth/login', values);
+      localStorage.setItem('token', res.data.token);
       message.success('Giriş başarılı!');
-    } catch (error) {
-        if (axios.isAxiosError(error) && error.response) {
-            message.error(error.response.data.message || 'Giriş sırasında bir hata oluştu.');
-        } else {
-            message.error('Giriş sırasında bir hata oluştu.');
-        }
+      window.location.href = '/';
+    } catch (err) {
+      message.error('Kullanıcı adı veya şifre hatalı!');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f0f2f5' }}>
-        <Card title={<Title level={3} style={{ textAlign: 'center' }}>Admin Girişi</Title>} style={{ width: 400 }}>
-            <Form name="login" onFinish={onFinish} layout="vertical">
-                <Form.Item
-                    label="Kullanıcı Adı"
-                    name="username"
-                    rules={[{ required: true, message: 'Lütfen kullanıcı adınızı girin!' }]}
-                >
-                    <Input />
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0f2f5' }}>
+      <Card style={{ minWidth: 350, boxShadow: '0 2px 8px #f0f1f2' }}>
+        <Title level={3} style={{ textAlign: 'center', marginBottom: 24 }}>Admin Girişi</Title>
+            <Form layout="vertical" onFinish={onFinish}>
+                <Form.Item name="username" label="Kullanıcı Adı" rules={[{ required: true, message: 'Kullanıcı adı girin!' }]}>
+                    <Input autoFocus />
                 </Form.Item>
-
-                <Form.Item
-                    label="Şifre"
-                    name="password"
-                    rules={[{ required: true, message: 'Lütfen şifrenizi girin!' }]}
-                >
+                <Form.Item name="password" label="Şifre" rules={[{ required: true, message: 'Şifre girin!' }]}>
                     <Input.Password />
                 </Form.Item>
-
                 <Form.Item>
-                    <Button type="primary" htmlType="submit" loading={loading} block>
-                    Giriş
+                    <Button type="primary" htmlType="submit" block loading={loading}>
+                    Giriş Yap
                     </Button>
                 </Form.Item>
             </Form>
-        </Card>
+      </Card>
     </div>
   );
 };
