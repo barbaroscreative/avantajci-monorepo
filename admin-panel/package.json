@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:setup": "ts-node --project ./tsconfig.node.json ./scripts/genAntdCss.tsx && vite",
-    "prebuild": "ts-node --project ./tsconfig.node.json ./scripts/genAntdCss.tsx",
+    "dev:setup": "tsc --project ./tsconfig.node.json && node ./dist-scripts/scripts/genAntdCss.js && vite",
+    "prebuild": "tsc --project ./tsconfig.node.json && node ./dist-scripts/scripts/genAntdCss.js",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
