@@ -25,44 +25,4 @@ db.sqlite-journal
 
 # Yüklemeler
 uploads/*
-!uploads/.gitkeep
-
-# Admin Paneli
-admin-panel/dist
-admin-panel/dist-scripts
-admin-panel/.DS_Store
-admin-panel/node_modules
-admin-panel/package-lock.json
-admin-panel/npm-debug.log*
-admin-panel/yarn-debug.log*
-admin-panel/yarn-error.log*
-admin-panel/pnpm-debug.log*
-
-# Mobil Uygulama
-mobile/node_modules
-mobile/package-lock.json
-mobile/npm-debug.log*
-mobile/yarn-debug.log*
-mobile/yarn-error.log*
-mobile/pnpm-debug.log*
-mobile/.DS_Store
-mobile/web-build
-mobile/ios/build
-mobile/android/build
-mobile/android/app/build
-mobile/android/.gradle
-mobile/.expo
-mobile/dist
-
-# Backend
-backend/node_modules
-backend/dist
-backend/package-lock.json
-backend/npm-debug.log*
-backend/yarn-debug.log*
-backend/yarn-error.log*
-backend/pnpm-debug.log*
-backend/.DS_Store
-backend/db.sqlite
-backend/db.sqlite-journal
-backend/uploads 
+!uploads/.gitkeep 
