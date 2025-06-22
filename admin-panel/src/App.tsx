@@ -7,6 +7,7 @@ import BankPage from './pages/BankPage';
 import CategoryPage from './pages/CategoryPage';
 import DashboardLayout from './components/DashboardLayout';
 
+// Force new commit to trigger Vercel webhook
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
 
