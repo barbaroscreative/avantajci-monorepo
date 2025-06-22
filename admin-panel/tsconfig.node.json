@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "strictNullChecks": true,
-    "module": "NodeNext",
-    "jsx": "react",
-    "esModuleInterop": true
+    "module": "CommonJS",
+    "outDir": "dist-scripts",
+    "esModuleInterop": true,
+    "strict": true
   },
-  "include": ["vite.config.ts", "scripts/**/*.ts", "scripts/**/*.tsx"]
+  "include": ["scripts/**/*.ts"]
 }
