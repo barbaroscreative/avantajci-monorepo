@@ -29,7 +29,6 @@ uploads/*
 
 # Admin Paneli
 admin-panel/dist
-admin-panel/dist-scripts
 admin-panel/.DS_Store
 admin-panel/node_modules
 admin-panel/package-lock.json
