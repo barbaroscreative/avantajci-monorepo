@@ -1,42 +1,35 @@
 import { useState } from 'react';
-import { Routes, Route, Navigate, Link } from 'react-router-dom';
-import { Layout, Menu } from 'antd';
-import {
-  DashboardOutlined,
-  ShoppingOutlined,
-  BankOutlined,
-  AppstoreOutlined,
-  LogoutOutlined,
-} from '@ant-design/icons';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
-import DashboardLayout from './components/DashboardLayout';
+import CampaignPage from './pages/CampaignPage';
 import StorePage from './pages/StorePage';
 import BankPage from './pages/BankPage';
-import CampaignPage from './pages/CampaignPage';
 import CategoryPage from './pages/CategoryPage';
+import DashboardLayout from './components/DashboardLayout';
 
 function App() {
-  const isAuthenticated = !!localStorage.getItem('token');
+  const [token, setToken] = useState(localStorage.getItem('token'));
+
+  if (!token) {
+    return (
+      <Routes>
+        <Route path="/login" element={<LoginPage setToken={setToken} />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    );
+  }
 
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route
-        path="/"
-        element={
-          isAuthenticated ? (
-            <DashboardLayout />
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        }
-      >
+      <Route path="/" element={<DashboardLayout />}>
+        <Route index element={<Navigate to="/campaigns" replace />} />
+        <Route path="campaigns" element={<CampaignPage />} />
         <Route path="stores" element={<StorePage />} />
         <Route path="banks" element={<BankPage />} />
-        <Route path="campaigns" element={<CampaignPage />} />
         <Route path="categories" element={<CategoryPage />} />
-        <Route index element={<Navigate to="/stores" replace />} />
+        <Route path="*" element={<Navigate to="/campaigns" replace />} />
       </Route>
+      <Route path="/login" element={<Navigate to="/" />} />
     </Routes>
   );
 }
