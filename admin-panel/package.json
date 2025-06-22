@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@types/react-router-dom": "^5.3.3",
     "antd": "^5.26.1",
     "antd-img-crop": "^4.25.0",
     "axios": "^1.10.0",
