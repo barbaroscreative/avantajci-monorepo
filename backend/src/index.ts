@@ -47,5 +47,13 @@ app.use('/api/upload', uploadRouter);
 app.use('/api/category', categoryRouter);
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
+// Start server only if not in Vercel environment
+if (!process.env.VERCEL) {
+  const PORT = parseInt(process.env.PORT || '5008');
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
 // Vercel expects a default export of the app
 export default app; 
