@@ -48,11 +48,16 @@ const upload = multer({
 
 // Multer error handler
 const uploadWithErrorHandling = (req: Request, res: Response, next: any) => {
+  console.log('🔍 Before multer - Content-Type:', req.headers['content-type']);
+  console.log('🔍 Before multer - Content-Length:', req.headers['content-length']);
+  
   upload.single('file')(req, res, (err: any) => {
     if (err) {
       console.log('❌ Multer error:', err);
       (req as any).multerError = err;
+      return res.status(400).json({ message: 'Dosya yükleme hatası: ' + err.message });
     }
+    console.log('✅ Multer success');
     next();
   });
 };
