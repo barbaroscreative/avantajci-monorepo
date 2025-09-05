@@ -10,9 +10,9 @@ export const AppDataSource = new DataSource({
   type: 'postgres',
   url: process.env.POSTGRES_URL || 'postgresql://localhost:5432/avantajci',
   synchronize: true, // Geliştirme için otomatik tablo oluşturma
-  logging: false,
+  logging: true, // Debug için log'ları aç
   entities: [User, Store, Bank, Campaign, Category],
-  migrations: [],
+  migrations: [], // Migration'ları kaldırdık
   subscribers: [],
   ssl: process.env.VERCEL ? { rejectUnauthorized: false } : false,
 });
