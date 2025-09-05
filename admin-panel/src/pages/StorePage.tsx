@@ -148,7 +148,7 @@ const StorePage: React.FC = () => {
           rules={[{ required: true, message: 'Kategori seçin' }]}
           > 
           <Select 
-          options={categories.map(c => ({ value: c.id, label: c.name }))} /> 
+          options={categories?.map(c => ({ value: c.id, label: c.name })) || []} /> 
           </Form.Item> 
           <Form.Item 
           name="name" 
