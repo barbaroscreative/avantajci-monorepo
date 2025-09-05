@@ -46,12 +46,24 @@ router.post('/', upload.single('file'), (req: Request, res: Response) => {
       return;
     }
     
-    // Vercel'de farklı URL döndür
-    const fileUrl = process.env.VERCEL 
-      ? `/uploads/${file.filename}` 
-      : `/uploads/${file.filename}`;
-    
-    res.json({ url: fileUrl });
+    // Vercel'de Cloudinary veya başka bir servis kullanmalıyız
+    // Şimdilik base64 olarak döndürelim
+    if (process.env.VERCEL) {
+      // Vercel'de dosya sistemi geçici, bu yüzden base64 döndür
+      const fs = require('fs');
+      const fileBuffer = fs.readFileSync(file.path);
+      const base64 = fileBuffer.toString('base64');
+      const dataUrl = `data:${file.mimetype};base64,${base64}`;
+      
+      // Geçici dosyayı sil
+      fs.unlinkSync(file.path);
+      
+      res.json({ url: dataUrl });
+    } else {
+      // Local'de normal URL döndür
+      const fileUrl = `/uploads/${file.filename}`;
+      res.json({ url: fileUrl });
+    }
   } catch (error) {
     console.error('Upload error:', error);
     res.status(500).json({ message: 'Dosya yüklenirken hata oluştu.' });
