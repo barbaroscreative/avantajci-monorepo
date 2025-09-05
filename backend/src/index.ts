@@ -43,8 +43,11 @@ app.get('/', (req, res) => {
 app.get('/test-env', (req, res) => {
   res.json({
     postgresUrl: process.env.POSTGRES_URL ? 'SET' : 'NOT SET',
+    postgresUrlValue: process.env.POSTGRES_URL || 'NOT SET',
     vercel: process.env.VERCEL ? 'YES' : 'NO',
-    nodeEnv: process.env.NODE_ENV
+    nodeEnv: process.env.NODE_ENV,
+    appDataSourceType: AppDataSource.options.type,
+    appDataSourceUrl: AppDataSource.options.url
   });
 });
 
