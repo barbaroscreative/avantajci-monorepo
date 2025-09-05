@@ -39,8 +39,13 @@ const upload = multer({
 
 router.post('/', upload.single('file'), (req: Request, res: Response) => {
   try {
+    console.log('Upload request body:', req.body);
+    console.log('Upload request file:', req.file);
+    console.log('Upload request files:', req.files);
+    
     const file = req.file as Express.Multer.File | undefined;
     if (!file) {
+      console.log('No file received');
       res.status(400).json({ message: 'Dosya yüklenemedi.' });
       return;
     }
