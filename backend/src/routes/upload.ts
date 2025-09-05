@@ -46,10 +46,21 @@ router.post('/', upload.single('file'), (req: Request, res: Response) => {
     }
     
     if (process.env.VERCEL) {
-      // Vercel'de memory storage kullanıyoruz, buffer'dan base64 oluştur
-      const base64 = file.buffer.toString('base64');
-      const dataUrl = `data:${file.mimetype};base64,${base64}`;
-      res.json({ url: dataUrl });
+      // Vercel'de memory storage kullanıyoruz, buffer'ı dosya olarak kaydet
+      const uploadDir = '/tmp/uploads';
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+      
+      const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}-${file.originalname}`;
+      const filepath = path.join(uploadDir, filename);
+      
+      // Buffer'ı dosya olarak kaydet
+      fs.writeFileSync(filepath, file.buffer);
+      
+      // URL döndür
+      const fileUrl = `/uploads/${filename}`;
+      res.json({ url: fileUrl });
     } else {
       // Local'de normal URL döndür
       const fileUrl = `/uploads/${file.filename}`;
