@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input, message, Space, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import axiosInstance from '../api/axiosInstance';
 
 const { Title } = Typography;
 
@@ -21,7 +21,7 @@ const CategoryPage: React.FC = () => {
   const fetchCategories = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/category', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+      const res = await axiosInstance.get('/category');
       setCategories(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error('❌ CATEGORY FETCH ERROR:', error);
@@ -50,7 +50,7 @@ const CategoryPage: React.FC = () => {
       title: 'Kategoriyi silmek istediğinize emin misiniz?',
       onOk: async () => {
         try {
-          await axios.delete(`/api/category/${id}`, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+          await axiosInstance.delete(`/category/${id}`);
           message.success('Kategori silindi');
           fetchCategories();
         } catch {
@@ -63,10 +63,10 @@ const CategoryPage: React.FC = () => {
   const handleFinish = async (values: any) => {
     try {
       if (editing) {
-        await axios.put(`/api/category/${editing.id}`, values, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+        await axiosInstance.put(`/category/${editing.id}`, values);
         message.success('Kategori güncellendi');
       } else {
-        await axios.post('/api/category', values, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+        await axiosInstance.post('/category', values);
         message.success('Kategori eklendi');
       }
       setModalOpen(false);

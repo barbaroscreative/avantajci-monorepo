@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input, message, Space, Typography, DatePicker, Select, Upload, Switch } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
 import ImgCrop from 'antd-img-crop';
-import apiClient from '../api/axiosConfig';
+import axiosInstance from '../api/axiosInstance';
 import dayjs from 'dayjs';
 
 const { Title } = Typography;
@@ -44,9 +44,9 @@ const CampaignPage: React.FC = () => {
     setLoading(true);
     try {
       const [cRes, sRes, bRes] = await Promise.all([
-        apiClient.get('/campaign'),
-        apiClient.get('/store'),
-        apiClient.get('/bank'),
+        axiosInstance.get('/campaign'),
+        axiosInstance.get('/store'),
+        axiosInstance.get('/bank'),
       ]);
       
       console.log('🔍 CAMPAIGN DATA:', cRes.data);
@@ -69,7 +69,7 @@ const CampaignPage: React.FC = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await apiClient.get('/category');
+      const res = await axiosInstance.get('/category');
       console.log('🔍 CATEGORY DATA:', res.data);
       console.log('🔍 CATEGORY TYPE:', typeof res.data, Array.isArray(res.data));
       setCategories(Array.isArray(res.data) ? res.data : []);
@@ -135,7 +135,7 @@ const CampaignPage: React.FC = () => {
       title: 'Kampanyayı silmek istediğinize emin misiniz?',
       onOk: async () => {
         try {
-          await apiClient.delete(`/campaign/${id}`);
+          await axiosInstance.delete(`/campaign/${id}`);
           message.success('Kampanya silindi');
           fetchAll();
         } catch {
@@ -150,7 +150,7 @@ const CampaignPage: React.FC = () => {
     if (imageFileList.length && imageFileList[0].originFileObj) {
       const formData = new FormData();
       formData.append('file', imageFileList[0].originFileObj);
-      const res = await apiClient.post('/upload', formData, {
+      const res = await axiosInstance.post('/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       imageUrl = res.data.url;
@@ -172,10 +172,10 @@ const CampaignPage: React.FC = () => {
 
     try {
       if (editing) {
-        await apiClient.put(`/campaign/${editing.id}`, payload);
+        await axiosInstance.put(`/campaign/${editing.id}`, payload);
         message.success('Kampanya güncellendi');
       } else {
-        await apiClient.post('/campaign', payload);
+        await axiosInstance.post('/campaign', payload);
         message.success('Kampanya eklendi');
       }
       setModalOpen(false);
@@ -187,7 +187,7 @@ const CampaignPage: React.FC = () => {
 
   const handleToggleActive = async (campaign: Campaign) => {
     try {
-      const res = await apiClient.patch(`/campaign/${campaign.id}/toggle`, {});
+      const res = await axiosInstance.patch(`/campaign/${campaign.id}/toggle`, {});
       setCampaigns(prev => prev.map(c => c.id === campaign.id ? res.data : c));
       message.success('Durum güncellendi');
     } catch(err: any) {

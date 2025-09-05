@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input, message, Space, Typography, Upload } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
 import ImgCrop from 'antd-img-crop';
-import axios from 'axios';
+import axiosInstance from '../api/axiosInstance';
 
 const { Title } = Typography;
 
@@ -24,7 +24,7 @@ const BankPage: React.FC = () => {
   const fetchBanks = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/bank', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+      const res = await axiosInstance.get('/bank');
       setBanks(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error('❌ BANK FETCH ERROR:', error);
@@ -66,7 +66,7 @@ const BankPage: React.FC = () => {
       title: 'Bankayı silmek istediğinize emin misiniz?',
       onOk: async () => {
         try {
-          await axios.delete(`/api/bank/${id}`, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+          await axiosInstance.delete(`/bank/${id}`);
           message.success('Banka silindi');
           fetchBanks();
         } catch {
@@ -81,8 +81,8 @@ const BankPage: React.FC = () => {
     if (logoFileList.length && logoFileList[0].originFileObj) {
       const formData = new FormData();
       formData.append('file', logoFileList[0].originFileObj);
-      const res = await axios.post('/api/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${localStorage.getItem('token')}` },
+      const res = await axiosInstance.post('/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
       logoUrl = res.data.url;
     } else if (logoFileList.length && logoFileList[0].url) {
@@ -90,10 +90,10 @@ const BankPage: React.FC = () => {
     }
     try {
       if (editing) {
-        await axios.put(`/api/bank/${editing.id}`, { ...values, logoUrl }, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+        await axiosInstance.put(`/bank/${editing.id}`, { ...values, logoUrl });
         message.success('Banka güncellendi');
       } else {
-        await axios.post('/api/bank', { ...values, logoUrl }, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+        await axiosInstance.post('/bank', { ...values, logoUrl });
         message.success('Banka eklendi');
       }
       setModalOpen(false);

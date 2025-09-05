@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input, message, Space, Typography, Upload, Select } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
 import ImgCrop from 'antd-img-crop';
-import axios from 'axios';
+import axiosInstance from '../api/axiosInstance';
 
 const { Title } = Typography;
 
@@ -30,7 +30,7 @@ const StorePage: React.FC = () => {
   const fetchStores = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/store', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+      const res = await axiosInstance.get('/store');
       setStores(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error('❌ STORE FETCH ERROR:', error);
@@ -42,7 +42,7 @@ const StorePage: React.FC = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get('/api/category', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+      const res = await axiosInstance.get('/category');
       setCategories(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error('❌ CATEGORY FETCH ERROR:', error);
@@ -82,7 +82,7 @@ const StorePage: React.FC = () => {
       title: 'Mağazayı silmek istediğinize emin misiniz?',
       onOk: async () => {
         try {
-          await axios.delete(`/api/store/${id}`, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+          await axiosInstance.delete(`/store/${id}`);
           message.success('Mağaza silindi');
           fetchStores();
         } catch {
@@ -99,8 +99,8 @@ const StorePage: React.FC = () => {
       formData.append('file', logoFileList[0].originFileObj);
       formData.append('name', values.name);
       formData.append('categoryId', values.categoryId);
-      const res = await axios.post('/api/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${localStorage.getItem('token')}` },
+      const res = await axiosInstance.post('/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
       logoUrl = res.data.url;
     } else if (logoFileList.length && logoFileList[0].url) {
@@ -108,10 +108,10 @@ const StorePage: React.FC = () => {
     }
     try {
       if (editing) {
-        await axios.put(`/api/store/${editing.id}`, { ...values, logoUrl }, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+        await axiosInstance.put(`/store/${editing.id}`, { ...values, logoUrl });
         message.success('Mağaza güncellendi');
       } else {
-        await axios.post('/api/store', { ...values, logoUrl }, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+        await axiosInstance.post('/store', { ...values, logoUrl });
         message.success('Mağaza eklendi');
       }
       setModalOpen(false);
