@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { put } from '@vercel/blob';
 
 const router = Router();
 
@@ -37,7 +38,7 @@ const upload = multer({
   }
 });
 
-router.post('/', upload.single('file'), (req: Request, res: Response) => {
+router.post('/', upload.single('file'), async (req: Request, res: Response) => {
   try {
     console.log('Upload request body:', req.body);
     console.log('Upload request file:', req.file);
@@ -51,10 +52,13 @@ router.post('/', upload.single('file'), (req: Request, res: Response) => {
     }
     
     if (process.env.VERCEL) {
-      // Vercel'de base64 döndür
-      const base64 = file.buffer.toString('base64');
-      const dataUrl = `data:${file.mimetype};base64,${base64}`;
-      res.json({ url: dataUrl });
+      // Vercel'de Blob storage kullan
+      const filename = `${Date.now()}-${file.originalname}`;
+      const blob = await put(filename, file.buffer, {
+        access: 'public',
+        contentType: file.mimetype,
+      });
+      res.json({ url: blob.url });
     } else {
       // Local'de dosya yolu döndür
       const fileUrl = `/uploads/${file.filename}`;
