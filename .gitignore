@@ -26,3 +26,4 @@ db.sqlite-journal
 # Yüklemeler
 uploads/*
 !uploads/.gitkeep 
+.vercel
