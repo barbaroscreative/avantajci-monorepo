@@ -25,8 +25,10 @@ const BankPage: React.FC = () => {
     setLoading(true);
     try {
       const res = await axios.get('/api/bank', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
-      setBanks(res.data);
-    } catch {
+      console.log('🔍 BANK FETCH DATA:', res.data, typeof res.data, Array.isArray(res.data));
+      setBanks(Array.isArray(res.data) ? res.data : []);
+    } catch (error) {
+      console.error('❌ BANK FETCH ERROR:', error);
       message.error('Bankalar yüklenemedi');
     } finally {
       setLoading(false);
