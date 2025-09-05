@@ -22,7 +22,6 @@ const CategoryPage: React.FC = () => {
     setLoading(true);
     try {
       const res = await axios.get('/api/category', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
-      console.log('🔍 CATEGORY FETCH DATA:', res.data, typeof res.data, Array.isArray(res.data));
       setCategories(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error('❌ CATEGORY FETCH ERROR:', error);

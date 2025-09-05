@@ -31,7 +31,6 @@ const StorePage: React.FC = () => {
     setLoading(true);
     try {
       const res = await axios.get('/api/store', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
-      console.log('🔍 STORE FETCH DATA:', res.data, typeof res.data, Array.isArray(res.data));
       setStores(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error('❌ STORE FETCH ERROR:', error);
@@ -44,7 +43,6 @@ const StorePage: React.FC = () => {
   const fetchCategories = async () => {
     try {
       const res = await axios.get('/api/category', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
-      console.log('🔍 CATEGORY FETCH DATA:', res.data, typeof res.data, Array.isArray(res.data));
       setCategories(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error('❌ CATEGORY FETCH ERROR:', error);
