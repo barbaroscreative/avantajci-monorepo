@@ -6,22 +6,8 @@ import { put } from '@vercel/blob';
 
 const router = Router();
 
-// Vercel'de memory storage, local'de disk storage
-const storage = process.env.VERCEL 
-  ? multer.memoryStorage()
-  : multer.diskStorage({
-      destination: (req: Request, file: Express.Multer.File, cb) => {
-        const uploadDir = path.join(__dirname, '../../uploads');
-        if (!fs.existsSync(uploadDir)) {
-          fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        cb(null, uploadDir);
-      },
-      filename: (req: Request, file: Express.Multer.File, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, uniqueSuffix + '-' + file.originalname);
-      },
-    });
+// Her zaman memory storage kullan
+const storage = multer.memoryStorage();
 
 const upload = multer({ 
   storage,
@@ -91,16 +77,10 @@ router.post('/', uploadWithErrorHandling, async (req: Request, res: Response) =>
       buffer: file.buffer ? 'Buffer exists' : 'No buffer'
     });
     
-    if (process.env.VERCEL) {
-      // Vercel'de base64 döndür
-      const base64 = file.buffer.toString('base64');
-      const dataUrl = `data:${file.mimetype};base64,${base64}`;
-      res.json({ url: dataUrl });
-    } else {
-      // Local'de dosya yolu döndür
-      const fileUrl = `/uploads/${file.filename}`;
-      res.json({ url: fileUrl });
-    }
+    // Her zaman base64 döndür
+    const base64 = file.buffer.toString('base64');
+    const dataUrl = `data:${file.mimetype};base64,${base64}`;
+    res.json({ url: dataUrl });
   } catch (error) {
     console.error('Upload error:', error);
     res.status(500).json({ message: 'Dosya yüklenirken hata oluştu.' });
