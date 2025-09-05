@@ -3,12 +3,12 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { AppDataSource } from './data-source';
-import authRouter from './routes/auth';
-import storeRouter from './routes/store';
-import bankRouter from './routes/bank';
-import campaignRouter from './routes/campaign';
-import uploadRouter from './routes/upload';
-import categoryRouter from './routes/category';
+import authRouter from './routes/auth.js';
+import storeRouter from './routes/store.js';
+import bankRouter from './routes/bank.js';
+import campaignRouter from './routes/campaign.js';
+import uploadRouter from './routes/upload.js';
+import categoryRouter from './routes/category.js';
 import path from 'path';
 
 dotenv.config();
