@@ -39,6 +39,15 @@ app.get('/', (req, res) => {
   res.send('API Çalışıyor!');
 });
 
+// Test endpoint - Environment variables kontrol
+app.get('/test-env', (req, res) => {
+  res.json({
+    postgresUrl: process.env.POSTGRES_URL ? 'SET' : 'NOT SET',
+    vercel: process.env.VERCEL ? 'YES' : 'NO',
+    nodeEnv: process.env.NODE_ENV
+  });
+});
+
 app.use('/api/auth', authRouter);
 app.use('/api/store', storeRouter);
 app.use('/api/bank', bankRouter);
