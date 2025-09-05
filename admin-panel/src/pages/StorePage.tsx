@@ -94,18 +94,28 @@ const StorePage: React.FC = () => {
 
   const handleFinish = async (values: any) => {
     let logoUrl = editing?.logoUrl || '';
+    
+    // Önce logo yükle
     if (logoFileList.length && logoFileList[0].originFileObj) {
-      const formData = new FormData();
-      formData.append('file', logoFileList[0].originFileObj);
-      formData.append('name', values.name);
-      formData.append('categoryId', values.categoryId);
-      const res = await axiosInstance.post('/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      logoUrl = res.data.url;
+      try {
+        const formData = new FormData();
+        formData.append('file', logoFileList[0].originFileObj);
+        
+        const res = await axiosInstance.post('/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        logoUrl = res.data.url;
+        console.log('✅ Logo uploaded:', logoUrl);
+      } catch (error) {
+        console.error('❌ Logo upload error:', error);
+        message.error('Logo yüklenemedi');
+        return;
+      }
     } else if (logoFileList.length && logoFileList[0].url) {
       logoUrl = logoFileList[0].url.replace('http://localhost:5008', '');
     }
+    
+    // Sonra store kaydet
     try {
       if (editing) {
         await axiosInstance.put(`/store/${editing.id}`, { ...values, logoUrl });
@@ -116,7 +126,8 @@ const StorePage: React.FC = () => {
       }
       setModalOpen(false);
       fetchStores();
-    } catch {
+    } catch (error) {
+      console.error('❌ Store save error:', error);
       message.error('İşlem başarısız');
     }
   };
