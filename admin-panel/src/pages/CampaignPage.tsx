@@ -79,7 +79,7 @@ const CampaignPage: React.FC = () => {
   };
 
   const handleCategorySelect = (catId: number) => {
-    const filteredStores = stores.filter(s => s.categoryId === catId);
+    const filteredStores = stores?.filter(s => s.categoryId === catId) || [];
     if (filteredStores.length === 0) {
       message.error('Bu kategoriye ait mağaza yok!');
       return;
@@ -146,7 +146,7 @@ const CampaignPage: React.FC = () => {
       imageUrl = new URL(imageFileList[0].url).pathname;
     }
     
-    const categoryName = categories.find(c => c.id === values.categoryId)?.name;
+    const categoryName = categories?.find(c => c.id === values.categoryId)?.name;
 
     const payload = {
       ...values,
