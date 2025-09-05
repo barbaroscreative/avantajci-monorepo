@@ -23,11 +23,17 @@ router.post('/', async (req: Request, res: Response) => {
     return;
   }
   try {
+    console.log('🔍 CATEGORY POST - Database URL:', process.env.POSTGRES_URL ? 'SET' : 'NOT SET');
+    console.log('🔍 CATEGORY POST - AppDataSource initialized:', AppDataSource.isInitialized);
+    
     const repo = AppDataSource.getRepository(Category);
     const category = repo.create({ name });
-    await repo.save(category);
-    res.json(category);
+    const savedCategory = await repo.save(category);
+    
+    console.log('✅ CATEGORY SAVED:', savedCategory);
+    res.json(savedCategory);
   } catch (error) {
+    console.error('❌ CATEGORY SAVE ERROR:', error);
     res.status(400).json({ message: 'Kategori eklenemedi', error });
   }
 });

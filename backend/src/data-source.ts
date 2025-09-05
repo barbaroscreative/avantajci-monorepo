@@ -1,10 +1,10 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-const { User } = require("./entities/User");
-const { Store } = require("./entities/Store");
-const { Bank } = require("./entities/Bank");
-const { Campaign } = require("./entities/Campaign");
-const { Category } = require("./entities/Category");
+import { User } from "./entities/User";
+import { Store } from "./entities/Store";
+import { Bank } from "./entities/Bank";
+import { Campaign } from "./entities/Campaign";
+import { Category } from "./entities/Category";
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
