@@ -52,7 +52,7 @@ const BankPage: React.FC = () => {
           uid: '-1',
           name: 'logo.png',
           status: 'done',
-          url: `http://localhost:5008${bank.logoUrl}`,
+          url: bank.logoUrl,
         },
       ]);
     } else {
@@ -81,12 +81,12 @@ const BankPage: React.FC = () => {
     if (logoFileList.length && logoFileList[0].originFileObj) {
       const formData = new FormData();
       formData.append('file', logoFileList[0].originFileObj);
-      const res = await axiosInstance.post('/upload', formData, {
+      const res = await axiosInstance.post('/cloudinary-upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       logoUrl = res.data.url;
     } else if (logoFileList.length && logoFileList[0].url) {
-      logoUrl = logoFileList[0].url.replace('http://localhost:5008', '');
+      logoUrl = logoFileList[0].url;
     }
     try {
       if (editing) {
@@ -111,7 +111,7 @@ const BankPage: React.FC = () => {
         columns={[
           { title: 'ID', dataIndex: 'id' },
           { title: 'Adı', dataIndex: 'name' },
-          { title: 'Logo', dataIndex: 'logoUrl', render: (url?: string) => url ? <img src={`http://localhost:5008${url}`} alt="logo" style={{ width: 40, height: 40, objectFit: 'contain' }} /> : '-' },
+          { title: 'Logo', dataIndex: 'logoUrl', render: (url?: string) => url ? <img src={url} alt="logo" style={{ width: 40, height: 40, objectFit: 'contain' }} /> : '-' },
           { title: 'Oluşturulma', dataIndex: 'createdAt', render: (v: string) => new Date(v).toLocaleString() },
           {
             title: 'İşlemler',

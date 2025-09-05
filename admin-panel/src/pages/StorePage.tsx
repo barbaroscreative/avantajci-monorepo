@@ -94,28 +94,18 @@ const StorePage: React.FC = () => {
 
   const handleFinish = async (values: any) => {
     let logoUrl = editing?.logoUrl || '';
-    
-    // Önce logo yükle
     if (logoFileList.length && logoFileList[0].originFileObj) {
-      try {
-        const formData = new FormData();
-        formData.append('file', logoFileList[0].originFileObj);
-        
-        const res = await axiosInstance.post('/upload', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        logoUrl = res.data.url;
-        console.log('✅ Logo uploaded:', logoUrl);
-      } catch (error) {
-        console.error('❌ Logo upload error:', error);
-        message.error('Logo yüklenemedi');
-        return;
-      }
+      const formData = new FormData();
+      formData.append('file', logoFileList[0].originFileObj);
+      formData.append('name', values.name);
+      formData.append('categoryId', values.categoryId);
+      const res = await axiosInstance.post('/cloudinary-upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      logoUrl = res.data.url;
     } else if (logoFileList.length && logoFileList[0].url) {
-      logoUrl = logoFileList[0].url.replace('http://localhost:5008', '');
+      logoUrl = logoFileList[0].url;
     }
-    
-    // Sonra store kaydet
     try {
       if (editing) {
         await axiosInstance.put(`/store/${editing.id}`, { ...values, logoUrl });
@@ -126,8 +116,7 @@ const StorePage: React.FC = () => {
       }
       setModalOpen(false);
       fetchStores();
-    } catch (error) {
-      console.error('❌ Store save error:', error);
+    } catch {
       message.error('İşlem başarısız');
     }
   };

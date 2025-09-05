@@ -8,6 +8,7 @@ import storeRouter from './routes/store.js';
 import bankRouter from './routes/bank.js';
 import campaignRouter from './routes/campaign.js';
 import uploadRouter from './routes/upload.js';
+import cloudinaryUploadRouter from './routes/cloudinary-upload.js';
 import categoryRouter from './routes/category.js';
 import path from 'path';
 
@@ -36,10 +37,7 @@ app.get('/', (req, res) => {
   res.send('API Çalışıyor!');
 });
 
-// Use the middleware for ALL requests
-app.use(connectDatabase);
-
-// Test endpoint - Environment variables kontrol (middleware'den sonra)
+// Test endpoint - Environment variables kontrol (middleware'den önce)
 app.get('/test-env', (req, res) => {
   res.json({
     postgresUrl: process.env.POSTGRES_URL ? 'SET' : 'NOT SET',
@@ -51,11 +49,15 @@ app.get('/test-env', (req, res) => {
   });
 });
 
+// Use the middleware for ALL requests
+app.use(connectDatabase);
+
 app.use('/api/auth', authRouter);
 app.use('/api/store', storeRouter);
 app.use('/api/bank', bankRouter);
 app.use('/api/campaign', campaignRouter);
 app.use('/api/upload', uploadRouter);
+app.use('/api/cloudinary-upload', cloudinaryUploadRouter);
 app.use('/api/category', categoryRouter);
 // Static file serving - Vercel'de /tmp, local'de uploads
 const uploadsPath = process.env.VERCEL 

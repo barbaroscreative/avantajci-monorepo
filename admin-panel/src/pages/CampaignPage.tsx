@@ -150,7 +150,7 @@ const CampaignPage: React.FC = () => {
     if (imageFileList.length && imageFileList[0].originFileObj) {
       const formData = new FormData();
       formData.append('file', imageFileList[0].originFileObj);
-      const res = await axiosInstance.post('/upload', formData, {
+      const res = await axiosInstance.post('/cloudinary-upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       imageUrl = res.data.url;
