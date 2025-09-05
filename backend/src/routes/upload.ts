@@ -5,23 +5,22 @@ import fs from 'fs';
 
 const router = Router();
 
-// Vercel'de /tmp kullan, local'de uploads kullan
-const uploadDir = process.env.VERCEL ? '/tmp/uploads' : path.join(__dirname, '../../uploads');
-
-// Upload dizinini oluştur
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (req: Request, file: Express.Multer.File, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req: Request, file: Express.Multer.File, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + '-' + file.originalname);
-  },
-});
+// Vercel'de memory storage, local'de disk storage
+const storage = process.env.VERCEL 
+  ? multer.memoryStorage() // Vercel'de memory'de tut
+  : multer.diskStorage({
+      destination: (req: Request, file: Express.Multer.File, cb) => {
+        const uploadDir = path.join(__dirname, '../../uploads');
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
+      },
+      filename: (req: Request, file: Express.Multer.File, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        cb(null, uniqueSuffix + '-' + file.originalname);
+      },
+    });
 
 const upload = multer({ 
   storage,
@@ -46,18 +45,10 @@ router.post('/', upload.single('file'), (req: Request, res: Response) => {
       return;
     }
     
-    // Vercel'de Cloudinary veya başka bir servis kullanmalıyız
-    // Şimdilik base64 olarak döndürelim
     if (process.env.VERCEL) {
-      // Vercel'de dosya sistemi geçici, bu yüzden base64 döndür
-      const fs = require('fs');
-      const fileBuffer = fs.readFileSync(file.path);
-      const base64 = fileBuffer.toString('base64');
+      // Vercel'de memory storage kullanıyoruz, buffer'dan base64 oluştur
+      const base64 = file.buffer.toString('base64');
       const dataUrl = `data:${file.mimetype};base64,${base64}`;
-      
-      // Geçici dosyayı sil
-      fs.unlinkSync(file.path);
-      
       res.json({ url: dataUrl });
     } else {
       // Local'de normal URL döndür
