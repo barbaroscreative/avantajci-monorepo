@@ -1,10 +1,9 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { AppDataSource } from '../data-source';
 import { Campaign } from '../entities/Campaign';
 import { Store } from '../entities/Store';
 import { Bank } from '../entities/Bank';
 import { Category } from '../entities/Category';
-import { authenticateJWT, AuthRequest } from '../middleware/auth';
 import { In } from 'typeorm';
 
 const router = Router();
@@ -12,7 +11,7 @@ const router = Router();
 // MOBİL UYGULAMA İÇİN - JWT GEREKTİRMEYEN ENDPOINT'LER
 
 // Mobil: Aktif kampanyaları listele (JWT gerektirmez)
-router.get('/mobile', async (req, res): Promise<void> => {
+router.get('/mobile', async (req: Request, res: Response) => {
   try {
     const campaignRepo = AppDataSource.getRepository(Campaign);
     const { store, bank, category } = req.query;
@@ -46,7 +45,7 @@ router.get('/mobile', async (req, res): Promise<void> => {
 });
 
 // Mobil: Tüm bankaları listele (JWT gerektirmez)
-router.get('/mobile/banks', async (req, res): Promise<void> => {
+router.get('/mobile/banks', async (req: Request, res: Response) => {
   try {
     const bankRepo = AppDataSource.getRepository(Bank);
     const banks = await bankRepo.find();
@@ -58,7 +57,7 @@ router.get('/mobile/banks', async (req, res): Promise<void> => {
 });
 
 // Mobil: Tüm kategorileri listele (JWT gerektirmez)
-router.get('/mobile/categories', async (req, res): Promise<void> => {
+router.get('/mobile/categories', async (req: Request, res: Response) => {
   try {
     const categoryRepo = AppDataSource.getRepository(Category);
     const categories = await categoryRepo.find({ order: { name: 'ASC' } });
@@ -70,7 +69,7 @@ router.get('/mobile/categories', async (req, res): Promise<void> => {
 });
 
 // Mobil: Mağaza arama (JWT gerektirmez)
-router.get('/mobile/stores', async (req, res): Promise<void> => {
+router.get('/mobile/stores', async (req: Request, res: Response) => {
   try {
     const { search } = req.query;
     const storeRepo = AppDataSource.getRepository(Store);
@@ -92,7 +91,7 @@ router.get('/mobile/stores', async (req, res): Promise<void> => {
 // ADMIN PANELİ İÇİN - JWT GEREKTİREN ENDPOINT'LER
 
 // Kampanya oluştur
-router.post('/', authenticateJWT, async (req: AuthRequest, res): Promise<void> => {
+router.post('/', async (req: Request, res: Response) => {
   const { title, description, startDate, endDate, category, storeIds, bankId, imageUrl, rewardAmount, rewardType } = req.body;
   if (!title || !description || !startDate || !endDate || !storeIds || !storeIds.length || !bankId) {
     res.status(400).json({ message: 'Zorunlu alanlar eksik.' }); return;
@@ -125,7 +124,7 @@ router.post('/', authenticateJWT, async (req: AuthRequest, res): Promise<void> =
 });
 
 // Tüm kampanyaları listele
-router.get('/', authenticateJWT, async (req: AuthRequest, res): Promise<void> => {
+router.get('/', async (req: Request, res: Response) => {
   const campaignRepo = AppDataSource.getRepository(Campaign);
   const campaigns = await campaignRepo.find();
 
@@ -148,7 +147,7 @@ router.get('/', authenticateJWT, async (req: AuthRequest, res): Promise<void> =>
 });
 
 // Kampanya aktif/pasif durumunu değiştir
-router.patch('/:id/toggle', authenticateJWT, async (req: AuthRequest, res): Promise<void> => {
+router.patch('/:id/toggle', async (req: Request, res: Response) => {
   const { id } = req.params;
   const campaignRepo = AppDataSource.getRepository(Campaign);
   const campaign = await campaignRepo.findOneBy({ id: Number(id) });
@@ -173,7 +172,7 @@ router.patch('/:id/toggle', authenticateJWT, async (req: AuthRequest, res): Prom
 });
 
 // Kampanya güncelle
-router.put('/:id', authenticateJWT, async (req: AuthRequest, res): Promise<void> => {
+router.put('/:id', async (req: Request, res: Response) => {
   const { id } = req.params;
   const { title, description, startDate, endDate, category, storeIds, bankId, imageUrl, rewardAmount, rewardType } = req.body;
   const campaignRepo = AppDataSource.getRepository(Campaign);
@@ -206,7 +205,7 @@ router.put('/:id', authenticateJWT, async (req: AuthRequest, res): Promise<void>
 });
 
 // Kampanya sil
-router.delete('/:id', authenticateJWT, async (req: AuthRequest, res): Promise<void> => {
+router.delete('/:id', async (req: Request, res: Response) => {
   const { id } = req.params;
   const campaignRepo = AppDataSource.getRepository(Campaign);
   const campaign = await campaignRepo.findOneBy({ id: Number(id) });
