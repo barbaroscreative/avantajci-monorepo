@@ -52,13 +52,10 @@ router.post('/', upload.single('file'), async (req: Request, res: Response) => {
     }
     
     if (process.env.VERCEL) {
-      // Vercel'de Blob storage kullan
-      const filename = `${Date.now()}-${file.originalname}`;
-      const blob = await put(filename, file.buffer, {
-        access: 'public',
-        contentType: file.mimetype,
-      });
-      res.json({ url: blob.url });
+      // Vercel'de base64 döndür
+      const base64 = file.buffer.toString('base64');
+      const dataUrl = `data:${file.mimetype};base64,${base64}`;
+      res.json({ url: dataUrl });
     } else {
       // Local'de dosya yolu döndür
       const fileUrl = `/uploads/${file.filename}`;
