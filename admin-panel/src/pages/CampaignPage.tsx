@@ -48,10 +48,19 @@ const CampaignPage: React.FC = () => {
         apiClient.get('/store'),
         apiClient.get('/bank'),
       ]);
-      setCampaigns(cRes.data);
-      setStores(sRes.data);
-      setBanks(bRes.data);
-    } catch {
+      
+      console.log('🔍 CAMPAIGN DATA:', cRes.data);
+      console.log('🔍 STORE DATA:', sRes.data);
+      console.log('🔍 BANK DATA:', bRes.data);
+      console.log('🔍 CAMPAIGN TYPE:', typeof cRes.data, Array.isArray(cRes.data));
+      console.log('🔍 STORE TYPE:', typeof sRes.data, Array.isArray(sRes.data));
+      console.log('🔍 BANK TYPE:', typeof bRes.data, Array.isArray(bRes.data));
+      
+      setCampaigns(Array.isArray(cRes.data) ? cRes.data : []);
+      setStores(Array.isArray(sRes.data) ? sRes.data : []);
+      setBanks(Array.isArray(bRes.data) ? bRes.data : []);
+    } catch (error) {
+      console.error('❌ FETCH ERROR:', error);
       message.error('Veriler yüklenemedi');
     } finally {
       setLoading(false);
@@ -61,8 +70,11 @@ const CampaignPage: React.FC = () => {
   const fetchCategories = async () => {
     try {
       const res = await apiClient.get('/category');
-      setCategories(res.data);
-    } catch {
+      console.log('🔍 CATEGORY DATA:', res.data);
+      console.log('🔍 CATEGORY TYPE:', typeof res.data, Array.isArray(res.data));
+      setCategories(Array.isArray(res.data) ? res.data : []);
+    } catch (error) {
+      console.error('❌ CATEGORY FETCH ERROR:', error);
       message.error('Kategoriler yüklenemedi');
     }
   };
@@ -188,10 +200,17 @@ const CampaignPage: React.FC = () => {
       <Title level={3}>Kampanyalar</Title>
       <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd} style={{ marginBottom: 16 }}>Yeni Kampanya</Button>
       <Table rowKey="id" dataSource={campaigns} loading={loading} pagination={false}
+        onRow={(record) => {
+          console.log('🔍 TABLE ROW:', record);
+          return {};
+        }}
         columns={[
           { title: 'ID', dataIndex: 'id' },
           { title: 'Başlık', dataIndex: 'title' },
-          { title: 'Mağaza', dataIndex: ['stores'], render: (stores: Store[]) => stores?.map(s => s.name).join(', ') || '-' },
+          { title: 'Mağaza', dataIndex: ['stores'], render: (stores: Store[]) => {
+            console.log('🔍 STORES RENDER:', stores, typeof stores, Array.isArray(stores));
+            return stores?.map(s => s.name).join(', ') || '-';
+          }},
           { title: 'Banka', dataIndex: ['bank', 'name'] },
           { title: 'Başlangıç', dataIndex: 'startDate', render: (v: string) => new Date(v).toLocaleDateString() },
           { title: 'Bitiş', dataIndex: 'endDate', render: (v: string) => new Date(v).toLocaleDateString() },
