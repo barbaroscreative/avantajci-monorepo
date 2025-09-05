@@ -45,7 +45,11 @@ app.use('/api/bank', bankRouter);
 app.use('/api/campaign', campaignRouter);
 app.use('/api/upload', uploadRouter);
 app.use('/api/category', categoryRouter);
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+// Static file serving - Vercel'de /tmp, local'de uploads
+const uploadsPath = process.env.VERCEL 
+  ? '/tmp/uploads' 
+  : path.join(__dirname, '../uploads');
+app.use('/uploads', express.static(uploadsPath));
 
 // Start server only if not in Vercel environment
 if (!process.env.VERCEL) {
