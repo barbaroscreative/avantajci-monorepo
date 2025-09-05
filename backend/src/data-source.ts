@@ -9,8 +9,8 @@ const { Category } = require("./entities/Category");
 export const AppDataSource = new DataSource({
   type: 'postgres',
   url: process.env.POSTGRES_URL || 'postgresql://localhost:5432/avantajci',
-  synchronize: true, // Geliştirme için otomatik tablo oluşturma
-  logging: true, // Debug için log'ları aç
+  synchronize: false, // Production'da synchronize kapalı
+  logging: false, // Log'ları kapat
   entities: [User, Store, Bank, Campaign, Category],
   migrations: [], // Migration'ları kaldırdık
   subscribers: [],
