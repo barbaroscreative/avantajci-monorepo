@@ -47,7 +47,7 @@ app.get('/test-env', (req, res) => {
     vercel: process.env.VERCEL ? 'YES' : 'NO',
     nodeEnv: process.env.NODE_ENV,
     appDataSourceType: AppDataSource.options.type,
-    appDataSourceUrl: AppDataSource.options.url
+    appDataSourceUrl: (AppDataSource.options as any).url
   });
 });
 
