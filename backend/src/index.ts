@@ -36,7 +36,10 @@ app.get('/', (req, res) => {
   res.send('API Çalışıyor!');
 });
 
-// Test endpoint - Environment variables kontrol (middleware'den önce)
+// Use the middleware for ALL requests
+app.use(connectDatabase);
+
+// Test endpoint - Environment variables kontrol (middleware'den sonra)
 app.get('/test-env', (req, res) => {
   res.json({
     postgresUrl: process.env.POSTGRES_URL ? 'SET' : 'NOT SET',
@@ -47,9 +50,6 @@ app.get('/test-env', (req, res) => {
     appDataSourceUrl: (AppDataSource.options as any).url
   });
 });
-
-// Use the middleware for ALL requests
-app.use(connectDatabase);
 
 app.use('/api/auth', authRouter);
 app.use('/api/store', storeRouter);
