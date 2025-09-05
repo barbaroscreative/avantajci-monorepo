@@ -29,27 +29,62 @@ const upload = multer({
     fileSize: 5 * 1024 * 1024, // 5MB limit
   },
   fileFilter: (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+    console.log('🔍 File filter check:', {
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      fieldname: file.fieldname
+    });
+    
     // Sadece resim dosyalarına izin ver
     if (file.mimetype.startsWith('image/')) {
+      console.log('✅ File type accepted');
       cb(null, true);
     } else {
+      console.log('❌ File type rejected:', file.mimetype);
       cb(new Error('Sadece resim dosyaları yüklenebilir!'));
     }
   }
 });
 
-router.post('/', upload.single('file'), async (req: Request, res: Response) => {
+// Multer error handler
+const uploadWithErrorHandling = (req: Request, res: Response, next: any) => {
+  upload.single('file')(req, res, (err: any) => {
+    if (err) {
+      console.log('❌ Multer error:', err);
+      (req as any).multerError = err;
+    }
+    next();
+  });
+};
+
+router.post('/', uploadWithErrorHandling, async (req: Request, res: Response) => {
   try {
-    console.log('Upload request body:', req.body);
-    console.log('Upload request file:', req.file);
-    console.log('Upload request files:', req.files);
+    console.log('=== UPLOAD REQUEST START ===');
+    console.log('Request method:', req.method);
+    console.log('Request URL:', req.url);
+    console.log('Request headers:', req.headers);
+    console.log('Request body:', req.body);
+    console.log('Request file:', req.file);
+    console.log('Request files:', req.files);
+    console.log('Multer error:', (req as any).multerError);
+    console.log('Environment VERCEL:', process.env.VERCEL);
+    console.log('=== UPLOAD REQUEST END ===');
     
     const file = req.file as Express.Multer.File | undefined;
     if (!file) {
-      console.log('No file received');
+      console.log('❌ No file received - returning 400');
       res.status(400).json({ message: 'Dosya yüklenemedi.' });
       return;
     }
+    
+    console.log('✅ File received:', {
+      fieldname: file.fieldname,
+      originalname: file.originalname,
+      encoding: file.encoding,
+      mimetype: file.mimetype,
+      size: file.size,
+      buffer: file.buffer ? 'Buffer exists' : 'No buffer'
+    });
     
     if (process.env.VERCEL) {
       // Vercel'de base64 döndür
