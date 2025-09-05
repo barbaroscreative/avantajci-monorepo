@@ -191,7 +191,7 @@ const CampaignPage: React.FC = () => {
         columns={[
           { title: 'ID', dataIndex: 'id' },
           { title: 'Başlık', dataIndex: 'title' },
-          { title: 'Mağaza', dataIndex: ['stores'], render: (stores: Store[]) => stores?.map(s => s.name).join(', ') },
+          { title: 'Mağaza', dataIndex: ['stores'], render: (stores: Store[]) => stores?.map(s => s.name).join(', ') || '-' },
           { title: 'Banka', dataIndex: ['bank', 'name'] },
           { title: 'Başlangıç', dataIndex: 'startDate', render: (v: string) => new Date(v).toLocaleDateString() },
           { title: 'Bitiş', dataIndex: 'endDate', render: (v: string) => new Date(v).toLocaleDateString() },
@@ -254,7 +254,7 @@ const CampaignPage: React.FC = () => {
             (option?.children as unknown as string ?? '').toLowerCase().includes(input.toLowerCase())
           }
         >
-          {categories.map(c => <Select.Option key={c.id} value={c.id}>{c.name}</Select.Option>)}
+          {categories?.map(c => <Select.Option key={c.id} value={c.id}>{c.name}</Select.Option>) || []}
         </Select>
       </Modal>
       <Modal open={modalOpen} title={editing ? 'Kampanya Düzenle' : 'Yeni Kampanya'} onCancel={() => setModalOpen(false)} footer={null} width={600}>
@@ -272,12 +272,12 @@ const CampaignPage: React.FC = () => {
             <Select mode="multiple" placeholder="Mağaza seçin" showSearch filterOption={(input, option) =>
               (option?.children as unknown as string ?? '').toLowerCase().includes(input.toLowerCase())
             }>
-              {stores.filter(s => s.categoryId === selectedCategory).map(s => <Select.Option key={s.id} value={s.id}>{s.name}</Select.Option>)}
+              {stores?.filter(s => s.categoryId === selectedCategory).map(s => <Select.Option key={s.id} value={s.id}>{s.name}</Select.Option>) || []}
             </Select>
           </Form.Item>
           <Form.Item name="bankId" label="Banka" rules={[{ required: true }]}>
             <Select placeholder="Banka seçin">
-              {banks.map(b => <Select.Option key={b.id} value={b.id}>{b.name}</Select.Option>)}
+              {banks?.map(b => <Select.Option key={b.id} value={b.id}>{b.name}</Select.Option>) || []}
             </Select>
           </Form.Item>
           <Form.Item name="rewardAmount" label="Ödül Miktarı">
